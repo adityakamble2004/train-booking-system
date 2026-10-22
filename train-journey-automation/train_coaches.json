@@ -1,0 +1,11 @@
+{
+  "01488": [
+    {"classCode": "SL", "coaches": 3},
+    {"classCode": "3A", "coaches": 1}
+  ],
+  "default": [
+    {"classCode": "SL", "coaches": 8},
+    {"classCode": "3A", "coaches": 4},
+    {"classCode": "2A", "coaches": 2}
+  ]
+}
