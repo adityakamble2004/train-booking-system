@@ -1,0 +1,35 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings"
+method: POST
+headers:
+  Idempotency-Key: negative-reverse-01
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "trainNo": "{{trainNo}}",
+      "journeyDate": "{{journeyDate}}",
+      "fromStation": "KWV",
+      "toStation": "HGL",
+      "classCode": "{{classCode}}",
+      "contactEmail": "{{email}}",
+      "contactPhone": "{{phone}}",
+      "passengers": [
+        {
+          "name": "{{fullName}}",
+          "dateOfBirth": "2001-08-14",
+          "gender": "M",
+          "berthPreference": "LOWER"
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+scripts:
+  - type: afterResponse
+    code: pm.test("Expected invalid station order response", function () { pm.expect(pm.response.code).to.eql(400); });
+    language: text/javascript
+order: 3000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/stations/suggest?q=pun"
+method: GET
+queryParams:
+  q: pun
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 200", function () { pm.response.to.have.status(200); });
+      pm.test("Returns an array", function () { pm.expect(pm.response.json()).to.be.an("array"); });
+      pm.test("Max 10 results", function () { pm.expect(pm.response.json().length).to.be.at.most(10); });
+    language: text/javascript
+order: 1000

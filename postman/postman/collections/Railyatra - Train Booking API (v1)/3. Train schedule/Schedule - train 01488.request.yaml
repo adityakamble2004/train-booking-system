@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/trains/01488/schedule"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 200", function () { pm.response.to.have.status(200); });
+      const b = pm.response.json();
+      pm.test("Has trainNo, trainName and stops", function () { pm.expect(b.trainNo).to.eql("01488"); pm.expect(b).to.have.property("trainName"); pm.expect(b.stops).to.be.an("array").that.is.not.empty; });
+      pm.test("Stops are in route order", function () { const o = b.stops.map(s => s.order); pm.expect(o).to.eql([...o].sort((x, y) => x - y)); });
+      pm.test("First stop is Harangul with null arrival", function () { pm.expect(b.stops[0].stationCode).to.eql("HGL"); pm.expect(b.stops[0].arrival).to.eql(null); });
+    language: text/javascript
+order: 1000

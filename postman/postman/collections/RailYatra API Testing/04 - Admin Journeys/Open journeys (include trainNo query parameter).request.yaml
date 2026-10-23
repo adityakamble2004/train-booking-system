@@ -1,0 +1,36 @@
+$kind: http-request
+url: "{{baseUrl}}/admin/journeys?trainNo={{trainNo}}"
+method: POST
+headers:
+  Content-Type: application/json
+queryParams:
+  trainNo: "{{trainNo}}"
+body:
+  type: json
+  content: |-
+    {
+      "trainNo": "{{trainNo}}",
+      "fromDate": "2026-10-28",
+      "toDate": "2026-10-30",
+      "classes": [
+        {
+          "classCode": "SL",
+          "coaches": 3
+        },
+        {
+          "classCode": "3A",
+          "coaches": 1
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{adminToken}}"
+scripts:
+  - type: afterResponse
+    code: pm.test("Journey creation response", function () {
+      pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 401, 403, 404,
+      503]); });
+    language: text/javascript
+order: 2000

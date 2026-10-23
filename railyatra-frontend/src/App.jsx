@@ -23,6 +23,9 @@ import ProfilePage from './pages/ProfilePage';
 import PassengersPage from './pages/PassengersPage';
 import PasswordPage from './pages/PasswordPage';
 import AdminJourneysPage from './pages/AdminJourneysPage';
+import TrainSearchPage from './pages/TrainSearchPage';
+import BookingPage from './pages/BookingPage'
+import { Train } from 'lucide-react';
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { label: 'My Profile', path: '/profile', icon: UserRound },
@@ -32,6 +35,11 @@ const navItems = [
     path: '/settings/password',
     icon: ShieldCheck,
   },
+  {
+    label: 'Train Search',
+    path: '/trains',
+    icon: Train
+  },
 ]
 
 function App() {
@@ -40,6 +48,7 @@ function App() {
   const [page, setPage] = useState('/dashboard')
   const [menuOpen, setMenuOpen] = useState(false)
   const role = String(user?.role || '').toUpperCase()
+  const [selectedBooking, setSelectedBooking] = useState(null)
   const isAdmin = role === 'ADMIN' || role === 'ROLE_ADMIN'
   const visibleNavItems = isAdmin
     ? [...navItems, { label: 'Admin Panel', path: '/admin/journeys', icon: ShieldCheck }]
@@ -66,6 +75,10 @@ function App() {
       'Admin Panel',
       'Create and review train journeys.',
     ],
+    '/booking': [
+      'Complete Your Booking',
+      'Enter passenger details and confirm your journey.',
+    ],
   }
 
   const [title, subtitle] = titles[page] || titles['/dashboard']
@@ -73,6 +86,10 @@ function App() {
   function navigate(path) {
     setPage(path)
     setMenuOpen(false)
+  }
+  function startBooking(bookingDetails) {
+    setSelectedBooking(bookingDetails)
+    navigate('/booking')
   }
 
   async function handleLogout() {
@@ -117,9 +134,8 @@ function App() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0 ${
-          menuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0 ${menuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex h-20 items-center justify-between border-b border-slate-100 px-6">
           <button
@@ -165,11 +181,10 @@ function App() {
                   type="button"
                   key={path}
                   onClick={() => navigate(path)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${
-                    active
-                      ? 'bg-blue-950 text-white shadow-lg shadow-blue-950/10'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
-                  }`}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold transition ${active
+                    ? 'bg-blue-950 text-white shadow-lg shadow-blue-950/10'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+                    }`}
                 >
                   <Icon size={19} />
                   <span className="flex-1">{label}</span>
@@ -272,17 +287,32 @@ function App() {
             <Dashboard navigate={navigate} user={user} />
           )}
 
-         {page === '/profile' && <ProfilePage />}
+          {page === '/profile' && <ProfilePage />}
 
           {page === '/passengers' && <PassengersPage />}
 
           {page === '/settings/password' && <PasswordPage />}
 
+          {page === '/trains' && <TrainSearchPage onBook={startBooking} />}
+
+          {page === '/booking' && (
+            <BookingPage
+              bookingDetails={selectedBooking}
+              user={user}
+              onBack={() => navigate('/trains')}
+              onNewSearch={() => {
+                setSelectedBooking(null)
+                navigate('/trains')
+              }}
+            />
+          )}
+
+
           {page === '/admin/journeys' && isAdmin && <AdminJourneysPage />}
           {page === '/admin/journeys' && !isAdmin && (
             <section className="rounded-2xl border border-red-200 bg-white p-6 text-sm text-red-700">You do not have permission to access the admin panel.</section>
           )}
-        
+
         </main>
       </div>
     </div>

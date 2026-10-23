@@ -1,0 +1,13 @@
+$kind: http-request
+name: Suggest - too short (p) -> 400
+url: "{{baseUrl}}/api/v1/stations/suggest?q=p"
+method: GET
+queryParams:
+  q: p
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 400", function () { pm.response.to.have.status(400); });
+      pm.test("Error code is QUERY_TOO_SHORT", function () { pm.expect(pm.response.json().code).to.eql("QUERY_TOO_SHORT"); });
+    language: text/javascript
+order: 4000

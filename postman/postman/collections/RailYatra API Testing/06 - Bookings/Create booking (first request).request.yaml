@@ -1,0 +1,41 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings"
+method: POST
+headers:
+  Idempotency-Key: "{{idempotencyKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "trainNo": "{{trainNo}}",
+      "journeyDate": "{{journeyDate}}",
+      "fromStation": "{{fromStation}}",
+      "toStation": "{{toStation}}",
+      "classCode": "{{classCode}}",
+      "contactEmail": "{{email}}",
+      "contactPhone": "{{phone}}",
+      "passengers": [
+        {
+          "name": "{{fullName}}",
+          "dateOfBirth": "2001-08-14",
+          "gender": "M",
+          "berthPreference": "LOWER"
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      
+      pm.test("Booking response is expected", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 401, 404, 409]);
+      });
+      let j={}; try { j=pm.response.json(); } catch(e) {}
+      if (j.pnr) pm.collectionVariables.set("pnr", String(j.pnr));
+    language: text/javascript
+order: 1000

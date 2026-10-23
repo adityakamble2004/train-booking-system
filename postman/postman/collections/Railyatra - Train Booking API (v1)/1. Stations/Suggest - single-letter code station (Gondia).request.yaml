@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/stations/suggest?q=Gondia"
+method: GET
+queryParams:
+  q: Gondia
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 200", function () { pm.response.to.have.status(200); });
+      pm.test("Gondia Jn (code G) present", function () { pm.expect(pm.response.json().map(s => s.code)).to.include("G"); });
+    language: text/javascript
+order: 3000

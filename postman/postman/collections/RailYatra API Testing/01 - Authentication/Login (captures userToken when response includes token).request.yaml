@@ -1,0 +1,27 @@
+$kind: http-request
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "{{email}}",
+      "password": "{{password}}"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      
+      pm.test("Successful auth response", function () {
+        pm.expect(pm.response.code).to.be.oneOf([200, 201]);
+      });
+      let j = {};
+      try { j = pm.response.json(); } catch (e) {}
+      const token = j.accessToken || j.token || (j.data && (j.data.accessToken || j.data.token));
+      if (token) pm.collectionVariables.set("userToken", token);
+    language: text/javascript
+order: 2000

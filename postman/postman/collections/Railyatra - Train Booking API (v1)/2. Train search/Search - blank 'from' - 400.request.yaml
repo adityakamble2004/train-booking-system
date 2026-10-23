@@ -1,0 +1,14 @@
+$kind: http-request
+name: Search - blank 'from' -> 400
+url: "{{baseUrl}}/api/v1/trains/search?from= &to=KWV"
+method: GET
+queryParams:
+  from: " "
+  to: KWV
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 400", function () { pm.response.to.have.status(400); });
+      pm.test("Error code is STATION_REQUIRED", function () { pm.expect(pm.response.json().code).to.eql("STATION_REQUIRED"); });
+    language: text/javascript
+order: 7000

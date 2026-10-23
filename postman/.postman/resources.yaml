@@ -1,0 +1,12 @@
+workspace:
+  id: e8ed99fb-9762-4621-84a9-36fd8e979f6a
+cloudResources:
+  collections:
+    ../postman/collections/Railyatra - Train Booking API (v1): bc9ebb7b-6419-43df-a6fd-a898b59f201a
+    ../postman/collections/RailYatra API Testing: 89d7a609-d6fd-478c-b00f-b81e930e5322
+localResources:
+  specs:
+    - ../postman/specs/test/test.json
+resourceNameMappings:
+  specs:
+    - ../postman/specs/test/test.json: test

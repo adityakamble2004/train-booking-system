@@ -1,0 +1,13 @@
+$kind: http-request
+name: Search - missing 'to' -> 400
+url: "{{baseUrl}}/api/v1/trains/search?from=HGL"
+method: GET
+queryParams:
+  from: HGL
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 400", function () { pm.response.to.have.status(400); });
+      pm.test("Error code is MISSING_PARAMETER", function () { pm.expect(pm.response.json().code).to.eql("MISSING_PARAMETER"); });
+    language: text/javascript
+order: 6000

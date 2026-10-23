@@ -1,0 +1,11 @@
+$kind: http-request
+name: Suggest - missing q -> 400
+url: "{{baseUrl}}/api/v1/stations/suggest"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 400", function () { pm.response.to.have.status(400); });
+      pm.test("Error code is MISSING_PARAMETER", function () { pm.expect(pm.response.json().code).to.eql("MISSING_PARAMETER"); });
+    language: text/javascript
+order: 5000

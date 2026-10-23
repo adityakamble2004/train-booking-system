@@ -1,0 +1,4 @@
+$kind: collection
+description: Stations suggest, train search and schedule. Run the whole folder with the Collection Runner.
+variables:
+  baseUrl: http://localhost:8080

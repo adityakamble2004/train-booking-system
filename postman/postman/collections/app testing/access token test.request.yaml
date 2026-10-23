@@ -1,0 +1,19 @@
+$kind: http-request
+url: http://localhost:8080/api/ai-agents
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"userId\": 1,\r
+
+    \    \"userGmail\": \"aditya@gmail.com\",\r
+
+    \    \"accessToken\": \"test-token-123\",\r
+
+    \    \"access\": true,\r
+
+    \    \"level\": 5\r
+
+    }"
+order: 4112990040352315

@@ -1,0 +1,11 @@
+$kind: http-request
+name: Schedule - unknown train -> 404
+url: "{{baseUrl}}/api/v1/trains/99999/schedule"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 404", function () { pm.response.to.have.status(404); });
+      pm.test("Error code is TRAIN_NOT_FOUND", function () { pm.expect(pm.response.json().code).to.eql("TRAIN_NOT_FOUND"); });
+    language: text/javascript
+order: 2000

@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/stations/suggest?q=KWV"
+method: GET
+queryParams:
+  q: KWV
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 200", function () { pm.response.to.have.status(200); });
+      pm.test("KWV is first", function () { pm.expect(pm.response.json()[0].code).to.eql("KWV"); });
+    language: text/javascript
+order: 2000

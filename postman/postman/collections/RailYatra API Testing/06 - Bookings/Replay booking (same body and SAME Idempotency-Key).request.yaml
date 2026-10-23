@@ -1,0 +1,37 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings"
+method: POST
+headers:
+  Idempotency-Key: "{{idempotencyKey}}"
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "trainNo": "{{trainNo}}",
+      "journeyDate": "{{journeyDate}}",
+      "fromStation": "{{fromStation}}",
+      "toStation": "{{toStation}}",
+      "classCode": "{{classCode}}",
+      "contactEmail": "{{email}}",
+      "contactPhone": "{{phone}}",
+      "passengers": [
+        {
+          "name": "{{fullName}}",
+          "dateOfBirth": "2001-08-14",
+          "gender": "M",
+          "berthPreference": "LOWER"
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Replay should not create a second booking", function () { pm.expect(pm.response.code).to.be.oneOf([200, 201]); });
+      let j={}; try{j=pm.response.json()}catch(e){}; if(j.pnr && pm.collectionVariables.get("pnr")) pm.test("PNR is unchanged", function(){pm.expect(String(j.pnr)).to.eql(pm.collectionVariables.get("pnr"));});
+    language: text/javascript
+order: 2000

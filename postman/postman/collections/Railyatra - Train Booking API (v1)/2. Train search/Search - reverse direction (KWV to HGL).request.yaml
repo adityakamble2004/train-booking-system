@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/api/v1/trains/search?from=KWV&to=HGL"
+method: GET
+queryParams:
+  from: KWV
+  to: HGL
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test("Status is 200", function () { pm.response.to.have.status(200); });
+      pm.test("01488 does not run backwards", function () { pm.expect(pm.response.json().map(t => t.trainNo)).to.not.include("01488"); });
+    language: text/javascript
+order: 3000
