@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/users/me/passengers/{{passengerId}}"
-method: DELETE
-auth:
-  type: bearer
-  credentials:
-    token: "{{userToken}}"
-order: 4000

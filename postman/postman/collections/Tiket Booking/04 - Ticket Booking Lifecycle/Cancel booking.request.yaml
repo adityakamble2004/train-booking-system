@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/bookings/{{pnr}}/cancel"
-method: POST
-auth:
-  type: bearer
-  credentials:
-    token: "{{userToken}}"
-order: 7000

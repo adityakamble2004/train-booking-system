@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{baseUrl}}/dev/bookings/{{pnr}}/confirm"
-method: POST
-auth:
-  type: bearer
-  credentials:
-    token: "{{userToken}}"
-order: 5000

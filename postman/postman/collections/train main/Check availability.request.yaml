@@ -1,4 +1,0 @@
-$kind: http-request
-url: http://localhost:8081/api/v1/bookings
-method: POST
-order: 7000
