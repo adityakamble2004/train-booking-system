@@ -1,4 +1,6 @@
 $kind: http-request
-url: ""
+url: http://localhost:8080/api/trains/by-number?trainNo=01488
 method: GET
+queryParams:
+  trainNo: "01488"
 order: 4234326765010837

@@ -1,0 +1,41 @@
+CREATE TABLE payments (
+    id                  BIGINT        NOT NULL AUTO_INCREMENT,
+    booking_id          BIGINT        NOT NULL,
+    gateway             VARCHAR(20)   NOT NULL,
+    gateway_order_id    VARCHAR(64)   NOT NULL,
+    gateway_payment_id  VARCHAR(64)   NULL,
+    amount_paise        INT           NOT NULL,
+    currency            CHAR(3)       NOT NULL DEFAULT 'INR',
+    status              VARCHAR(10)   NOT NULL DEFAULT 'CREATED',
+    failure_reason      VARCHAR(255)  NULL,
+    created_at          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    paid_at             TIMESTAMP     NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_pay_order (gateway_order_id),
+    UNIQUE KEY uk_pay_gw_payment (gateway_payment_id),
+    KEY idx_pay_booking (booking_id),
+    CONSTRAINT fk_pay_booking FOREIGN KEY (booking_id) REFERENCES bookings (id),
+    CONSTRAINT chk_pay_status CHECK (status IN ('CREATED', 'PAID', 'FAILED')),
+    CONSTRAINT chk_pay_amount CHECK (amount_paise > 0)
+);
+
+CREATE TABLE refunds (
+    id                 BIGINT       NOT NULL AUTO_INCREMENT,
+    payment_id         BIGINT       NOT NULL,
+    booking_id         BIGINT       NOT NULL,
+    amount_paise       INT          NOT NULL,
+    reason             VARCHAR(20)  NOT NULL,
+    status             VARCHAR(10)  NOT NULL DEFAULT 'PENDING',
+    gateway_refund_id  VARCHAR(64)  NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    processed_at       TIMESTAMP    NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_refund_payment (payment_id),
+    KEY idx_refund_status (status, id),
+    CONSTRAINT fk_refund_payment FOREIGN KEY (payment_id) REFERENCES payments (id),
+    CONSTRAINT fk_refund_booking FOREIGN KEY (booking_id) REFERENCES bookings (id),
+    CONSTRAINT chk_refund_reason CHECK (reason IN ('CANCELLATION', 'LATE_PAYMENT', 'DUPLICATE_PAYMENT')),
+    CONSTRAINT chk_refund_status CHECK (status IN ('PENDING', 'PROCESSED', 'FAILED')),
+    CONSTRAINT chk_refund_amount CHECK (amount_paise > 0)
+);

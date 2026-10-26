@@ -5,7 +5,7 @@ import java.util.List;
 
 public record BookingResponse(
         String pnr, String status, String trainNo, String trainName, LocalDate journeyDate, String classCode,
-        Stop from, Stop to, int totalFarePaise, long holdSecondsLeft, String contactEmail,
+        Stop from, Stop to, int totalFarePaise, Integer refundPaise, long holdSecondsLeft, String contactEmail,
         List<PassengerSeat> passengers) {
 
     public record Stop(String code, String name, String time) {}

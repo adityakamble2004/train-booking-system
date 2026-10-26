@@ -1,4 +1,13 @@
 $kind: http-request
-url: ""
-method: GET
+url: http://localhost:8081/api/v1/admin/journeys
+method: POST
+body:
+  type: json
+  content: "{ \"trainNo\": \"01488\", \"fromDate\": \"2026-11-04\", \"toDate\": \"2026-11-04\",\r
+
+    \  \"classes\": [ { \"classCode\": \"CC\", \"coaches\": 1 } ] }"
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_01c6}}"
 order: 8000

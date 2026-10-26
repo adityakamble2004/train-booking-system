@@ -1,0 +1,31 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings"
+method: POST
+headers:
+  Idempotency-Key: negative-class-2A-01
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "trainNo": "{{trainNo}}",
+      "journeyDate": "{{journeyDate}}",
+      "fromStation": "{{fromStation}}",
+      "toStation": "{{toStation}}",
+      "classCode": "2A",
+      "contactEmail": "{{email}}",
+      "contactPhone": "{{phone}}",
+      "passengers": [
+        {
+          "name": "{{fullName}}",
+          "dateOfBirth": "2001-08-14",
+          "gender": "M",
+          "berthPreference": "LOWER"
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+order: 2000

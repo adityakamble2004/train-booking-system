@@ -26,6 +26,9 @@ import AdminJourneysPage from './pages/AdminJourneysPage';
 import TrainSearchPage from './pages/TrainSearchPage';
 import BookingPage from './pages/BookingPage'
 import { Train } from 'lucide-react';
+import MyBookingsPage from './pages/MyBookingsPage'
+import { Ticket } from 'lucide-react'
+
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { label: 'My Profile', path: '/profile', icon: UserRound },
@@ -40,6 +43,13 @@ const navItems = [
     path: '/trains',
     icon: Train
   },
+
+  {
+    label: 'My Bookings',
+    path: '/bookings',
+    icon: Ticket,
+  },
+
 ]
 
 function App() {
@@ -78,6 +88,10 @@ function App() {
     '/booking': [
       'Complete Your Booking',
       'Enter passenger details and confirm your journey.',
+    ],
+    '/bookings': [
+      'My Bookings',
+      'View your tickets, booking status, and cancellations.',
     ],
   }
 
@@ -295,6 +309,7 @@ function App() {
 
           {page === '/trains' && <TrainSearchPage onBook={startBooking} />}
 
+
           {page === '/booking' && (
             <BookingPage
               bookingDetails={selectedBooking}
@@ -304,6 +319,12 @@ function App() {
                 setSelectedBooking(null)
                 navigate('/trains')
               }}
+            />
+          )}
+
+          {page === '/bookings' && (
+            <MyBookingsPage
+              onSearchTrains={() => navigate('/trains')}
             />
           )}
 

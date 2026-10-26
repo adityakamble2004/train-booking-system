@@ -55,6 +55,7 @@ public class SecurityConfig {
                     "/api/v1/auth/**",
                     "/actuator/health"
                 ).permitAll()
+                .requestMatchers("/api/v1/auth/**", "/actuator/health", "/api/v1/payments/webhook").permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN").requestMatchers("/api/v1/availability", "/api/v1/journeys/**").permitAll()
                 .anyRequest().authenticated()
             )

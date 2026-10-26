@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings/{{pnr}}"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Booking is confirmed', function () {
+        pm.response.to.have.status(200);
+        const data = pm.response.json();
+        pm.expect(data.status || (data.data && data.data.status)).to.eql('CONFIRMED');
+      });
+    language: text/javascript
+order: 3000

@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/users/me"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+order: 3000

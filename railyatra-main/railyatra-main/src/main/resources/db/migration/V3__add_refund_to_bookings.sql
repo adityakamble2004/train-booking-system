@@ -1,0 +1,1 @@
+ALTER TABLE bookings ADD COLUMN refund_paise INT NULL AFTER total_fare_paise;

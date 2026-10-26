@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/dev/payments/{{orderId}}/complete"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "outcome": "FAILURE"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+order: 4000

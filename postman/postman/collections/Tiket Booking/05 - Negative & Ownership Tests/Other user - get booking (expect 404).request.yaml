@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings/{{pnr}}"
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: "{{otherUserToken}}"
+order: 4000

@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings?page={{page}}&size={{size}}"
+method: GET
+queryParams:
+  page: "{{page}}"
+  size: "{{size}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+order: 4000

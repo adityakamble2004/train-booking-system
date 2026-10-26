@@ -1,0 +1,24 @@
+$kind: http-request
+url: "{{baseUrl}}/users/me/profile"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "fullName": "{{fullName}}",
+      "dateOfBirth": "2001-08-14",
+      "gender": "M",
+      "preferredClass": "SL",
+      "preferredBerth": "LOWER",
+      "homeStationCode": "PUNE",
+      "language": "en",
+      "notifyEmail": true,
+      "notifySms": false
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+order: 2000

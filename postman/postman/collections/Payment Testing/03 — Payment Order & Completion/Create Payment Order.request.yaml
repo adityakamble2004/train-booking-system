@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{baseUrl}}/bookings/{{pnr}}/payments"
+method: POST
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      const data = pm.response.json();
+      const orderId = data.orderId || (data.data && data.data.orderId);
+      if (orderId) pm.environment.set('orderId', orderId);
+      pm.test('Payment order created', function () {
+        pm.response.to.have.status(201);
+        pm.expect(orderId).to.be.a('string');
+      });
+    language: text/javascript
+order: 1000

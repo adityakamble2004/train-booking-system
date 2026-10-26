@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/availability?trainNo={{trainNo}}&date={{journeyDate}}&from={{fromStation}}&to={{toStation}}"
+method: GET
+queryParams:
+  trainNo: "{{trainNo}}"
+  date: "{{journeyDate}}"
+  from: "{{fromStation}}"
+  to: "{{toStation}}"
+auth:
+  type: bearer
+  credentials:
+    token: "{{userToken}}"
+order: 1000

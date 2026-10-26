@@ -1,4 +1,13 @@
 $kind: http-request
-url: ""
-method: GET
+url: http://localhost:8081/api/v1/availability?trainNo=01488&date=2026-10-28&from=HGL&to=KWV
+method: POST
+queryParams:
+  trainNo: "01488"
+  date: 2026-10-28
+  from: HGL
+  to: KWV
+auth:
+  type: bearer
+  credentials:
+    token: "{{json_web_token_1cdf}}"
 order: 9000
