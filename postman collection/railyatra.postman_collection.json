@@ -1,0 +1,580 @@
+{
+  "info": {
+    "name": "Railyatra - Train Booking API (v1)",
+    "description": "Stations suggest, train search and schedule. Run the whole folder with the Collection Runner.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Stations",
+      "item": [
+        {
+          "name": "Suggest - by name prefix (pun)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Returns an array\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });",
+                  "pm.test(\"Max 10 results\", function () { pm.expect(pm.response.json().length).to.be.at.most(10); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stations/suggest?q=pun",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                "suggest"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "pun"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest - by code (KWV)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"KWV is first\", function () { pm.expect(pm.response.json()[0].code).to.eql(\"KWV\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stations/suggest?q=KWV",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                "suggest"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "KWV"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest - single-letter code station (Gondia)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Gondia Jn (code G) present\", function () { pm.expect(pm.response.json().map(s => s.code)).to.include(\"G\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stations/suggest?q=Gondia",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                "suggest"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Gondia"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest - too short (p) -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Error code is QUERY_TOO_SHORT\", function () { pm.expect(pm.response.json().code).to.eql(\"QUERY_TOO_SHORT\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stations/suggest?q=p",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                "suggest"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "p"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Suggest - missing q -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Error code is MISSING_PARAMETER\", function () { pm.expect(pm.response.json().code).to.eql(\"MISSING_PARAMETER\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stations/suggest",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "stations",
+                "suggest"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Train search",
+      "item": [
+        {
+          "name": "Search - HGL to KWV (happy path)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Finds train 01488\", function () { pm.expect(body.map(t => t.trainNo)).to.include(\"01488\"); });",
+                  "pm.test(\"Result shape is correct\", function () { const t = body[0]; pm.expect(t).to.have.property(\"trainName\"); pm.expect(t.from).to.have.property(\"departure\"); pm.expect(t.to).to.have.property(\"arrival\"); });",
+                  "pm.test(\"No SRC or dash placeholders in times\", function () { body.forEach(t => { pm.expect(t.from.departure).to.not.eql(\"SRC\"); pm.expect(t.to.arrival).to.not.eql(\"SRC\"); pm.expect(t.to.arrival).to.not.eql(\"\\u2014\"); }); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=HGL&to=KWV",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "HGL"
+                },
+                {
+                  "key": "to",
+                  "value": "KWV"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search - lowercase codes still work",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Has results\", function () { pm.expect(pm.response.json().length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=hgl&to=kwv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "hgl"
+                },
+                {
+                  "key": "to",
+                  "value": "kwv"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search - reverse direction (KWV to HGL)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"01488 does not run backwards\", function () { pm.expect(pm.response.json().map(t => t.trainNo)).to.not.include(\"01488\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=KWV&to=HGL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "KWV"
+                },
+                {
+                  "key": "to",
+                  "value": "HGL"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search - same station -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Error code is SAME_STATION\", function () { pm.expect(pm.response.json().code).to.eql(\"SAME_STATION\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=HGL&to=hgl",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "HGL"
+                },
+                {
+                  "key": "to",
+                  "value": "hgl"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search - unknown station -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Error code is STATION_NOT_FOUND\", function () { pm.expect(pm.response.json().code).to.eql(\"STATION_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=ZZZZ&to=KWV",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "ZZZZ"
+                },
+                {
+                  "key": "to",
+                  "value": "KWV"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search - missing 'to' -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Error code is MISSING_PARAMETER\", function () { pm.expect(pm.response.json().code).to.eql(\"MISSING_PARAMETER\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=HGL",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "HGL"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search - blank 'from' -> 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Error code is STATION_REQUIRED\", function () { pm.expect(pm.response.json().code).to.eql(\"STATION_REQUIRED\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/search?from=%20&to=KWV",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "from",
+                  "value": " "
+                },
+                {
+                  "key": "to",
+                  "value": "KWV"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Train schedule",
+      "item": [
+        {
+          "name": "Schedule - train 01488",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });",
+                  "const b = pm.response.json();",
+                  "pm.test(\"Has trainNo, trainName and stops\", function () { pm.expect(b.trainNo).to.eql(\"01488\"); pm.expect(b).to.have.property(\"trainName\"); pm.expect(b.stops).to.be.an(\"array\").that.is.not.empty; });",
+                  "pm.test(\"Stops are in route order\", function () { const o = b.stops.map(s => s.order); pm.expect(o).to.eql([...o].sort((x, y) => x - y)); });",
+                  "pm.test(\"First stop is Harangul with null arrival\", function () { pm.expect(b.stops[0].stationCode).to.eql(\"HGL\"); pm.expect(b.stops[0].arrival).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/01488/schedule",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "01488",
+                "schedule"
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Schedule - unknown train -> 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Error code is TRAIN_NOT_FOUND\", function () { pm.expect(pm.response.json().code).to.eql(\"TRAIN_NOT_FOUND\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/trains/99999/schedule",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "trains",
+                "99999",
+                "schedule"
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

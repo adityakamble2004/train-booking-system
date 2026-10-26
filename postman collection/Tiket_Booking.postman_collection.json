@@ -1,0 +1,980 @@
+{
+  "info": {
+    "_postman_id": "9d72b3a1-6b82-4f2b-bc11-3f6a10f4c621",
+    "name": "Tiket Booking",
+    "description": "RailYatra ticket booking lifecycle tests, including register/login, availability, booking, dev confirmation, cancellation, booking list and ownership tests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "userToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "otherUserToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "aditya@example.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Test1234",
+      "type": "string"
+    },
+    {
+      "key": "fullName",
+      "value": "Aditya Kamble",
+      "type": "string"
+    },
+    {
+      "key": "phone",
+      "value": "9876543210",
+      "type": "string"
+    },
+    {
+      "key": "trainNo",
+      "value": "01488",
+      "type": "string"
+    },
+    {
+      "key": "journeyDate",
+      "value": "2026-10-28",
+      "type": "string"
+    },
+    {
+      "key": "fromStation",
+      "value": "HGL",
+      "type": "string"
+    },
+    {
+      "key": "toStation",
+      "value": "KWV",
+      "type": "string"
+    },
+    {
+      "key": "classCode",
+      "value": "SL",
+      "type": "string"
+    },
+    {
+      "key": "idempotencyKey",
+      "value": "ticket-booking-001",
+      "type": "string"
+    },
+    {
+      "key": "pnr",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "page",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "size",
+      "value": "5",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Login & Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"fullName\": \"{{fullName}}\",\n  \"phone\": \"{{phone}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Registration response\",()=>pm.expect(pm.response.code).to.be.oneOf([200,201,400,409]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login (auto-save userToken)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login successful\", function(){pm.expect(pm.response.code).to.be.oneOf([200,201]);});",
+                  "let j={}; try{j=pm.response.json()}catch(e){}",
+                  "const t=j.accessToken||j.token||(j.data&&(j.data.accessToken||j.data.token));",
+                  "if(t) pm.collectionVariables.set(\"userToken\",t);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get current user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - User Profile & Passengers",
+      "item": [
+        {
+          "name": "Get my profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "profile"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update my profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "profile"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"{{fullName}}\",\n  \"dateOfBirth\": \"2001-08-14\",\n  \"gender\": \"M\",\n  \"preferredClass\": \"SL\",\n  \"preferredBerth\": \"LOWER\",\n  \"homeStationCode\": \"PUNE\",\n  \"language\": \"en\",\n  \"notifyEmail\": true,\n  \"notifySms\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List saved passengers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/passengers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "passengers"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create saved passenger",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/passengers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "passengers"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Asha Kamble\",\n  \"dateOfBirth\": \"1975-03-02\",\n  \"gender\": \"F\",\n  \"berthPreference\": \"LOWER\",\n  \"idType\": \"AADHAAR\",\n  \"idLast4\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Availability",
+      "item": [
+        {
+          "name": "Availability before booking",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availability?trainNo={{trainNo}}&date={{journeyDate}}&from={{fromStation}}&to={{toStation}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability"
+              ],
+              "query": [
+                {
+                  "key": "trainNo",
+                  "value": "{{trainNo}}"
+                },
+                {
+                  "key": "date",
+                  "value": "{{journeyDate}}"
+                },
+                {
+                  "key": "from",
+                  "value": "{{fromStation}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{toStation}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Availability after booking / confirm / cancel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availability?trainNo={{trainNo}}&date={{journeyDate}}&from={{fromStation}}&to={{toStation}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability"
+              ],
+              "query": [
+                {
+                  "key": "trainNo",
+                  "value": "{{trainNo}}"
+                },
+                {
+                  "key": "date",
+                  "value": "{{journeyDate}}"
+                },
+                {
+                  "key": "from",
+                  "value": "{{fromStation}}"
+                },
+                {
+                  "key": "to",
+                  "value": "{{toStation}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Ticket Booking Lifecycle",
+      "item": [
+        {
+          "name": "Create booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainNo\": \"{{trainNo}}\",\n  \"journeyDate\": \"{{journeyDate}}\",\n  \"fromStation\": \"{{fromStation}}\",\n  \"toStation\": \"{{toStation}}\",\n  \"classCode\": \"{{classCode}}\",\n  \"contactEmail\": \"{{email}}\",\n  \"contactPhone\": \"{{phone}}\",\n  \"passengers\": [\n    {\n      \"name\": \"{{fullName}}\",\n      \"dateOfBirth\": \"2001-08-14\",\n      \"gender\": \"M\",\n      \"berthPreference\": \"LOWER\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Booking response received\",function(){pm.expect(pm.response.code).to.be.oneOf([200,201,400,401,404,409]);});",
+                  "let j={};try{j=pm.response.json()}catch(e){};if(j.pnr)pm.collectionVariables.set(\"pnr\",String(j.pnr));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Replay booking (same idempotency key)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{idempotencyKey}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainNo\": \"{{trainNo}}\",\n  \"journeyDate\": \"{{journeyDate}}\",\n  \"fromStation\": \"{{fromStation}}\",\n  \"toStation\": \"{{toStation}}\",\n  \"classCode\": \"{{classCode}}\",\n  \"contactEmail\": \"{{email}}\",\n  \"contactPhone\": \"{{phone}}\",\n  \"passengers\": [\n    {\n      \"name\": \"{{fullName}}\",\n      \"dateOfBirth\": \"2001-08-14\",\n      \"gender\": \"M\",\n      \"berthPreference\": \"LOWER\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get booking by PNR",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{pnr}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{pnr}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List bookings (page 0, size 5)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings?page={{page}}&size={{size}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "size",
+                  "value": "{{size}}"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm booking (dev mock payment)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/bookings/{{pnr}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "bookings",
+                "{{pnr}}",
+                "confirm"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm booking again",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/bookings/{{pnr}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "bookings",
+                "{{pnr}}",
+                "confirm"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel booking",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{pnr}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{pnr}}",
+                "cancel"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel booking again",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{pnr}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{pnr}}",
+                "cancel"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Negative & Ownership Tests",
+      "item": [
+        {
+          "name": "Missing Idempotency-Key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainNo\": \"{{trainNo}}\",\n  \"journeyDate\": \"{{journeyDate}}\",\n  \"fromStation\": \"{{fromStation}}\",\n  \"toStation\": \"{{toStation}}\",\n  \"classCode\": \"{{classCode}}\",\n  \"contactEmail\": \"{{email}}\",\n  \"contactPhone\": \"{{phone}}\",\n  \"passengers\": [\n    {\n      \"name\": \"{{fullName}}\",\n      \"dateOfBirth\": \"2001-08-14\",\n      \"gender\": \"M\",\n      \"berthPreference\": \"LOWER\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unavailable class 2A",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "negative-class-2A-01"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainNo\": \"{{trainNo}}\",\n  \"journeyDate\": \"{{journeyDate}}\",\n  \"fromStation\": \"{{fromStation}}\",\n  \"toStation\": \"{{toStation}}\",\n  \"classCode\": \"2A\",\n  \"contactEmail\": \"{{email}}\",\n  \"contactPhone\": \"{{phone}}\",\n  \"passengers\": [\n    {\n      \"name\": \"{{fullName}}\",\n      \"dateOfBirth\": \"2001-08-14\",\n      \"gender\": \"M\",\n      \"berthPreference\": \"LOWER\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reverse route KWV to HGL",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "negative-reverse-01"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{userToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trainNo\": \"{{trainNo}}\",\n  \"journeyDate\": \"{{journeyDate}}\",\n  \"fromStation\": \"KWV\",\n  \"toStation\": \"HGL\",\n  \"classCode\": \"{{classCode}}\",\n  \"contactEmail\": \"{{email}}\",\n  \"contactPhone\": \"{{phone}}\",\n  \"passengers\": [\n    {\n      \"name\": \"{{fullName}}\",\n      \"dateOfBirth\": \"2001-08-14\",\n      \"gender\": \"M\",\n      \"berthPreference\": \"LOWER\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Other user - get booking (expect 404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{pnr}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{pnr}}"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherUserToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Other user - confirm booking (expect 404)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dev/bookings/{{pnr}}/confirm",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dev",
+                "bookings",
+                "{{pnr}}",
+                "confirm"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherUserToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Other user - cancel booking (expect 404)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{pnr}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{pnr}}",
+                "cancel"
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{otherUserToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
