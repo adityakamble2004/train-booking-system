@@ -1,6 +1,7 @@
 package com.droptechnologies.railyatra.auth;
 
 import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -16,6 +17,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HexFormat;
+import java.util.List;
+import java.util.Map;
+
 
 @Service
 public class TokenService {
@@ -61,4 +65,25 @@ public class TokenService {
             throw new IllegalStateException(e);
         }
     }
+    public String delegatedToken(long ownerId, long delegationId,
+            List<String> scopes, Duration ttl) {
+Instant now = Instant.now();
+
+JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+
+JwtClaimsSet claims = JwtClaimsSet.builder()
+.issuer("railyatra")
+.subject(String.valueOf(ownerId))
+.issuedAt(now)
+.expiresAt(now.plus(ttl))
+.claim("role", "AGENT")
+.claim("act", Map.of("sub", "agent:" + delegationId))
+.claim("delegation_id", String.valueOf(delegationId))
+.claim("scope", String.join(" ", scopes))
+.build();
+
+return encoder.encode(
+JwtEncoderParameters.from(header, claims)
+).getTokenValue();
+}
 }

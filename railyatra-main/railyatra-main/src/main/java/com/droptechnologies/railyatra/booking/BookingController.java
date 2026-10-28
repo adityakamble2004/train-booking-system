@@ -1,10 +1,13 @@
+
 package com.droptechnologies.railyatra.booking;
 
 import com.droptechnologies.railyatra.booking.dto.BookingResponse;
 import com.droptechnologies.railyatra.booking.dto.BookingSummary;
 import com.droptechnologies.railyatra.booking.dto.CreateBookingRequest;
 import com.droptechnologies.railyatra.common.dto.PageResponse;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,14 +34,28 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<BookingResponse> create(
             @AuthenticationPrincipal Jwt jwt,
-            @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
+            @RequestHeader(name = "Idempotency-Key", required = false)
+            String idempotencyKey,
             @Valid @RequestBody CreateBookingRequest body) {
 
+        // Read delegation ID from JWT
+        String d = jwt.getClaimAsString("delegation_id");
+        Long delegationId = (d == null || d.isBlank())
+                ? null
+                : Long.valueOf(d);
+
+        // Create booking
         BookingService.Result result = service.create(
-                Long.parseLong(jwt.getSubject()), idempotencyKey, body);
+                Long.parseLong(jwt.getSubject()),
+                delegationId,
+                idempotencyKey,
+                body
+        );
 
         return ResponseEntity
-                .status(result.replayed() ? HttpStatus.OK : HttpStatus.CREATED)
+                .status(result.replayed()
+                        ? HttpStatus.OK
+                        : HttpStatus.CREATED)
                 .body(result.booking());
     }
 
@@ -47,7 +64,8 @@ public class BookingController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable String pnr) {
 
-        return service.get(Long.parseLong(jwt.getSubject()), pnr);
+        return service.get(
+                Long.parseLong(jwt.getSubject()), pnr);
     }
 
     // List bookings with pagination

@@ -14,7 +14,7 @@ public record NewBooking(String pnr, long userId, long journeyId, String classCo
                          String fromCode, String fromName, int fromSeq, String departure,
                          String toCode, String toName, int toSeq, String arrival,
                          int totalFarePaise, String email, String phone, int holdMinutes,
-                         String idempotencyKey) {}
+                         String idempotencyKey, Long delegationId) {}
 
 public record BookingRow(long id, long userId, String status, boolean holdExpired,
                          int totalFarePaise, LocalDate journeyDate,
@@ -159,15 +159,15 @@ public long insertBooking(NewBooking b) {
                               from_station_code, from_station_name, from_seq, departure_time,
                               to_station_code, to_station_name, to_seq, arrival_time,
                               status, total_fare_paise, contact_email, contact_phone,
-                              hold_expires_at, idempotency_key)
+                              hold_expires_at, idempotency_key, created_by_delegation_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_PAYMENT', ?, ?, ?,
-                DATE_ADD(NOW(), INTERVAL ? MINUTE), ?)
+                DATE_ADD(NOW(), INTERVAL ? MINUTE), ?, ?)
         """,
             b.pnr(), b.userId(), b.journeyId(), b.classCode(),
             b.fromCode(), b.fromName(), b.fromSeq(), b.departure(),
             b.toCode(), b.toName(), b.toSeq(), b.arrival(),
             b.totalFarePaise(), b.email(), b.phone(),
-            b.holdMinutes(), b.idempotencyKey()
+            b.holdMinutes(), b.idempotencyKey(), b.delegationId()
     );
 }
 

@@ -1,9 +1,13 @@
 
 package com.droptechnologies.railyatra.common.config;
 
+import com.droptechnologies.railyatra.agent.AgentAccessFilter;
+import com.droptechnologies.railyatra.agent.DelegationRepository;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +25,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -42,8 +47,10 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(
             HttpSecurity http,
-            JwtAuthenticationConverter converter
+            JwtAuthenticationConverter converter,
+            DelegationRepository delegations
     ) throws Exception {
+
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
@@ -55,8 +62,23 @@ public class SecurityConfig {
                     "/api/v1/auth/**",
                     "/actuator/health"
                 ).permitAll()
-                .requestMatchers("/api/v1/auth/**", "/actuator/health", "/api/v1/payments/webhook").permitAll()
-                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN").requestMatchers("/api/v1/availability", "/api/v1/journeys/**").permitAll()
+                .requestMatchers(
+                    "/api/v1/auth/**",
+                    "/actuator/health",
+                    "/api/v1/payments/webhook"
+                ).permitAll()
+                .requestMatchers(
+                    "/api/v1/auth/**",
+                    "/actuator/health",
+                    "/api/v1/payments/webhook",
+                    "/api/v1/pnr/**"
+                ).permitAll()
+                .requestMatchers("/api/v1/admin/**")
+                    .hasRole("ADMIN")
+                .requestMatchers(
+                    "/api/v1/availability",
+                    "/api/v1/journeys/**"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(e -> e
@@ -67,6 +89,10 @@ public class SecurityConfig {
                 .jwt(j -> j.jwtAuthenticationConverter(converter))
                 .authenticationEntryPoint(entryPoint())
                 .accessDeniedHandler(deniedHandler())
+            )
+            .addFilterAfter(
+                new AgentAccessFilter(delegations),
+                BearerTokenAuthenticationFilter.class
             );
 
         return http.build();
@@ -169,6 +195,7 @@ public class SecurityConfig {
             String code,
             String message
     ) throws IOException {
+
         String path = req.getRequestURI()
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");

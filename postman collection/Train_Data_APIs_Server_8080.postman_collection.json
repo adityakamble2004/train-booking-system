@@ -1,0 +1,183 @@
+{
+  "info": {
+    "_postman_id": "a7d1c280-8080-4a6d-9b21-trainapi0001",
+    "name": "Train Data APIs - Server 8080",
+    "description": "Postman collection for fetching train search results, train route stops, train schedules, and station suggestions from the local Spring Boot server running on port 8080.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Search Trains by Station Name",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/trains/search?from={{fromStation}}&to={{toStation}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "trains",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "{{fromStation}}"
+            },
+            {
+              "key": "to",
+              "value": "{{toStation}}"
+            }
+          ]
+        },
+        "description": "Search trains by source and destination station names using the /api/trains controller."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Train Route by Number",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/trains/by-number?trainNo={{trainNo}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "trains",
+            "by-number"
+          ],
+          "query": [
+            {
+              "key": "trainNo",
+              "value": "{{trainNo}}"
+            }
+          ]
+        },
+        "description": "Fetch the ordered route stops for a train number."
+      },
+      "response": []
+    },
+    {
+      "name": "Search Trains by Station Code (v1)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/trains/search?from={{fromCode}}&to={{toCode}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "trains",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "{{fromCode}}"
+            },
+            {
+              "key": "to",
+              "value": "{{toCode}}"
+            }
+          ]
+        },
+        "description": "Search trains using the /api/v1/trains controller. Confirm whether its service expects station codes or names."
+      },
+      "response": []
+    },
+    {
+      "name": "Get Train Schedule (v1)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/trains/{{trainNo}}/schedule",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "trains",
+            "{{trainNo}}",
+            "schedule"
+          ]
+        },
+        "description": "Fetch the schedule for the specified train number."
+      },
+      "response": []
+    },
+    {
+      "name": "Suggest Stations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/v1/stations/suggest?q={{stationQuery}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "v1",
+            "stations",
+            "suggest"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "{{stationQuery}}"
+            }
+          ]
+        },
+        "description": "Suggest up to 10 stations. The query should contain at least 2 characters and no more than 50 characters."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "fromStation",
+      "value": "Pune",
+      "type": "string"
+    },
+    {
+      "key": "toStation",
+      "value": "Mumbai",
+      "type": "string"
+    },
+    {
+      "key": "trainNo",
+      "value": "01488",
+      "type": "string"
+    },
+    {
+      "key": "fromCode",
+      "value": "PUNE",
+      "type": "string"
+    },
+    {
+      "key": "toCode",
+      "value": "CSMT",
+      "type": "string"
+    },
+    {
+      "key": "stationQuery",
+      "value": "pu",
+      "type": "string"
+    }
+  ]
+}
