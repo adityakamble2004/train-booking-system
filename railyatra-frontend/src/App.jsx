@@ -33,6 +33,7 @@ import AdminJourneysPage from './pages/AdminJourneysPage'
 import TrainSearchPage from './pages/TrainSearchPage'
 import BookingPage from './pages/BookingPage'
 import MyBookingsPage from './pages/MyBookingsPage'
+import AgentAccessPage from './pages/AgentAccessPage'
 
 const navItems = [
   { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -40,6 +41,12 @@ const navItems = [
   { label: 'My Bookings', path: '/bookings', icon: Ticket },
   { label: 'My Profile', path: '/profile', icon: UserRound },
   { label: 'Passengers', path: '/passengers', icon: UsersRound },
+  {
+    label: 'Agent Access',
+    path: '/agent-access',
+    icon: Sparkles,
+  },
+
   {
     label: 'Password & Security',
     path: '/settings/password',
@@ -95,13 +102,13 @@ function App() {
 
   const visibleNavItems = isAdmin
     ? [
-        ...navItems,
-        {
-          label: 'Admin Panel',
-          path: '/admin/journeys',
-          icon: ShieldCheck,
-        },
-      ]
+      ...navItems,
+      {
+        label: 'Admin Panel',
+        path: '/admin/journeys',
+        icon: ShieldCheck,
+      },
+    ]
     : navItems
 
   const [title, subtitle] =
@@ -169,9 +176,8 @@ function App() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[278px] flex-col border-r border-slate-200/70 bg-white transition-transform duration-300 ${
-          menuOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-50 flex w-[278px] flex-col border-r border-slate-200/70 bg-white transition-transform duration-300 ${menuOpen ? 'translate-x-0' : '-translate-x-full'
+          } lg:translate-x-0`}
       >
         {/* Brand */}
         <div className="flex h-[84px] items-center justify-between border-b border-slate-100 px-6">
@@ -220,18 +226,16 @@ function App() {
                   key={path}
                   onClick={() => navigate(path)}
                   aria-current={active ? 'page' : undefined}
-                  className={`group flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold transition-all duration-200 ${
-                    active
-                      ? 'bg-[#071b3a] text-white shadow-lg shadow-blue-950/15'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-[#071b3a]'
-                  }`}
+                  className={`group flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-left text-[13px] font-semibold transition-all duration-200 ${active
+                    ? 'bg-[#071b3a] text-white shadow-lg shadow-blue-950/15'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-[#071b3a]'
+                    }`}
                 >
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
-                      active
-                        ? 'bg-white/10 text-cyan-300'
-                        : 'text-slate-400 group-hover:text-cyan-700'
-                    }`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${active
+                      ? 'bg-white/10 text-cyan-300'
+                      : 'text-slate-400 group-hover:text-cyan-700'
+                      }`}
                   >
                     <Icon size={18} />
                   </span>
@@ -388,6 +392,10 @@ function App() {
             <MyBookingsPage
               onSearchTrains={() => navigate('/trains')}
             />
+          )}
+
+          {page === '/agent-access' && (
+            <AgentAccessPage />
           )}
 
           {page === '/admin/journeys' && isAdmin && (
